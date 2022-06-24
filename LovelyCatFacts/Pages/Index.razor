@@ -1,0 +1,47 @@
+﻿@page "/"
+@using System.Net.Http
+@inject HttpClient Http
+@using System.Net.Http.Json
+
+
+<PageTitle>Facts about Cats!</PageTitle>
+
+<h1 class="display-1">Click the button bellow to receive a cat fact!</h1>
+
+
+<RadzenButton Text="@text" Click="OnClick"></RadzenButton>
+<p> @responseContent</p>
+<p> @catFact</p>
+
+
+@code {
+    string text = "Click me to receive a fact about Cats!";
+    string? responseContent;
+    string? catFact;
+
+    private async void OnClick()
+    {
+        try
+        {
+            HttpResponseMessage responseMessage = await Http.GetAsync("https://cat-fact.herokuapp.com/facts/random");
+            responseMessage.EnsureSuccessStatusCode();
+
+            responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+            Fact fact = JsonConvert.DeserializeObject<Fact>(responseContent);
+            catFact = fact.Text;
+
+        }
+        catch (HttpRequestException e)
+        {
+             Console.WriteLine("\nException Caught!");	
+             Console.WriteLine("Message :{0} ",e.Message);
+            
+        }
+
+        
+    }
+
+
+
+}
